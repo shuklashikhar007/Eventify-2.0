@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-
-// ── Comment Sub-document ─────────────────────────────────────────────────────
 const commentSchema = new mongoose.Schema(
   {
     author: {
@@ -8,7 +6,6 @@ const commentSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    // Denormalised snapshot so comments survive user updates
     authorName: { type: String, required: true },
     authorDesignation: { type: String, required: true },
     content: {
@@ -21,8 +18,6 @@ const commentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// ── Event Model ──────────────────────────────────────────────────────────────
 const eventSchema = new mongoose.Schema(
   {
     title: {
@@ -54,13 +49,13 @@ const eventSchema = new mongoose.Schema(
       required: [true, 'Event date is required'],
     },
     eventTime: {
-      type: String,          // "10:00 AM – 12:00 PM" free-form string
+      type: String,          
       required: [true, 'Event time is required'],
       trim: true,
       maxlength: [50, 'Event time cannot exceed 50 characters'],
     },
     requirements: {
-      type: String,          // eligibility, registration links, what to bring, etc.
+      type: String,        
       trim: true,
       maxlength: [2000, 'Requirements cannot exceed 2000 characters'],
       default: '',
@@ -94,21 +89,19 @@ const eventSchema = new mongoose.Schema(
       default: '',
     },
     tags: [{ type: String, trim: true }],
-    // ── Author info ──────────────────────────────────────────────────────────
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
-    authorName: {         // denormalised snapshot
+    authorName: {         
       type: String,
       required: true,
     },
-    authorDesignation: {  // denormalised snapshot
+    authorDesignation: {  
       type: String,
       required: true,
     },
-    // ── Moderation ───────────────────────────────────────────────────────────
     isActive: {
       type: Boolean,
       default: true,
@@ -118,7 +111,6 @@ const eventSchema = new mongoose.Schema(
       ref: 'User',
       default: null,
     },
-    // ── Comments ─────────────────────────────────────────────────────────────
     comments: [commentSchema],
   },
   {
@@ -127,17 +119,12 @@ const eventSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
-
-// Virtual — comment count
 eventSchema.virtual('commentCount').get(function () {
   return this.comments ? this.comments.length : 0;
 });
-
-// Index for fast sorting / filtering
 eventSchema.index({ eventDate: 1 });
 eventSchema.index({ author: 1 });
 eventSchema.index({ club: 1 });
 eventSchema.index({ category: 1 });
 eventSchema.index({ isActive: 1 });
-
 module.exports = mongoose.model('Event', eventSchema);
